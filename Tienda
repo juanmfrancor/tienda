@@ -1,0 +1,244 @@
+package co.edu.uniquindio.poo.model;
+
+import java.time.LocalDate;
+import java.util.*;
+
+
+public class Tienda {
+    private final String nombre;
+    private final String nit;
+    private String telefono;
+
+    private final ArrayList<Cliente> listaClientes = new ArrayList<>();
+    private final List<Factura> listaFacturas = new LinkedList<>();
+    private List< Producto> listaProductos = new LinkedList<>();
+
+
+    public Tienda(String nombre, String nit, String telefono) {
+        this.nombre = nombre;
+        this.nit = nit;
+        this.telefono = telefono;
+    }
+
+    // setters y getters
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getNit() {
+        return nit;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String registrarCliente(Cliente cliente) {
+      Optional  <Cliente> clienteEncontrado = buscarCliente(cliente.getDocumentoIdentidad());
+        if (clienteEncontrado == null) {
+            listaClientes.add(cliente);
+            return "El cliente fue registrado exitosamente";
+        } else return "No se puede registrar, ya existe un cliente con esa informacion registrado anteriormente.";
+    }
+
+    public Optional<Cliente> buscarCliente(String documentoIdentidad) {
+        for (Cliente cliente : listaClientes) {
+            if (cliente.getDocumentoIdentidad().equals(documentoIdentidad)) {
+                return Optional.of(cliente);
+            }
+        }
+        return Optional.empty();
+    }
+    public String registrarFactura(Factura factura){
+      Optional  <Factura> facturaEncontrada = buscarFactura(factura.codigo());
+        if (facturaEncontrada.isEmpty()) {
+            listaFacturas.add(factura);
+            return "factura registrada";
+        }else return "no se puede registrar";
+    }
+    public Optional<Factura> buscarFactura(String codigo){
+        return listaFacturas.stream().filter(f -> f.codigo().equals(codigo)).findFirst();
+    }
+    public String registrarProducto(Producto producto){
+        Optional<Producto> productoEncontrado= buscarProducto(producto.getCodigo());
+        if (productoEncontrado.isEmpty()) {
+            listaProductos.add(producto);
+            return "producto agregado";
+        }else return "no se a agregado el producto";
+        }
+        public Optional<Producto> buscarProducto(String codigo){
+        return listaProductos.stream().filter(product-> product.codigo.equals(codigo)).findFirst();
+        }
+
+        public float obtenerTotalVendido(){
+        float total=0;
+        for (Factura f:listaFacturas){
+            if(f!=null){
+               total+= f.total();
+
+            }
+        }return total;
+        }
+
+    public List<Factura> consultarFacturasCliente(String documento) {
+        List<Factura>facturasCliente=new ArrayList<>();
+        for(Factura factur:listaFacturas){
+            if (documento.equals(factur.cliente().getDocumentoIdentidad())) {
+                facturasCliente.add(factur);
+            }
+
+
+        }
+        return facturasCliente;
+    }
+
+    public List<Producto> obtenerProductosBajoInventario(int limite){
+        List<Producto> productoBajos=new ArrayList<>();
+        for (Producto p:listaProductos){
+            if (p.getCantidadDisponible()<limite){
+                productoBajos.add(p);
+
+            }
+        }return productoBajos;
+    }
+
+    public List<Producto> productosMayor10 (){
+        List<Producto> produ=new ArrayList<>();
+        int cantidad=10;
+        for(Producto producto:listaProductos){
+            if(cantidad<producto.getCantidadDisponible()){
+                produ.add(producto);
+
+            }
+        }return produ;
+    }
+
+    public List<String> codigos10y50() {
+        List<String> codi=new ArrayList<>();
+        for(Producto producto:listaProductos){
+            if (producto.getCantidadDisponible()<50&&producto.getCantidadDisponible()>=10){
+                codi.add(producto.getCodigo());
+            }
+        }
+
+        return codi;
+    }
+
+    public List<Cliente> fecha(){
+        List<Cliente>clientess=new ArrayList<>();
+        for (Cliente cliente:listaClientes){
+            if (cliente.getListaFacturas.fecha() == LocalDate.of(2026,10,08)){
+                clientess.add(cliente);
+            }
+        }return clientess;
+    }
+
+    public List<Factura> nombreInicial(){
+        List<Factura>fact=new ArrayList<>();
+        for (Cliente cliente:listaClientes){
+            if(cliente.getNombreCompleto().charAt(0)=='r'){
+                fact.add(cliente.getListaFacturas());
+            }
+
+        }return fact;
+    }
+
+    //punto 5
+
+    public ArrayList<Factura> obtenerFacturasIphone16ProMax() {
+        ArrayList<Factura> resultado = new ArrayList<>();
+
+        for (Factura factura : listaFacturas) {
+            if (factura.tieneIphone16ProMax()) {
+                resultado.add(factura);
+            }
+        }
+
+        return resultado;
+    }
+
+    //punto 6
+
+    public ArrayList<Factura> obtenerFacturasJuanIphone() {
+        ArrayList<Factura> resultado = new ArrayList<>();
+
+        for (Factura factura : listaFacturas) {
+            if (factura.tieneClienteJuan()
+                    && factura.tieneIphone16ProMax()) {
+                resultado.add(factura);
+            }
+        }
+
+        return resultado;
+    }
+    //punto 7
+
+    public ArrayList<Producto> obtenerProductosCategoria(Categoria categoria) {
+        ArrayList<Producto> resultado = new ArrayList<>();
+
+        for (Producto producto : listaProductos) {
+            if (producto.getCategoria() == categoria) {
+                resultado.add(producto);
+            }
+        }
+
+        return resultado;
+    }
+
+    public ArrayList<Producto> obtenerProductosPorPrecio(
+            double precioMinimo, double precioMaximo) {
+
+        ArrayList<Producto> resultado = new ArrayList<>();
+
+        for (Producto producto : listaProductos) {
+            if (producto.getValor() >= precioMinimo
+                    && producto.getValor() <= precioMaximo) {
+                resultado.add(producto);
+            }
+        }
+
+        return resultado;
+    }
+    public ArrayList<Producto> obtenerProductosOrdenados() {
+        ArrayList<Producto> resultado = new ArrayList<>(listaProductos);
+
+        resultado.sort((p1, p2) ->
+                Double.compare(p1.getValor(), p2.getValor()));
+
+        return resultado;
+    }
+    public Optional<Producto> obtenerProductoMasCaro() {
+        if (listaProductos.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Producto mayor = listaProductos.get(0);
+
+        for (Producto producto : listaProductos) {
+            if (producto.getValor() > mayor.getValor()) {
+                mayor = producto;
+            }
+        }
+
+        return Optional.of(mayor);
+    }
+    public ArrayList<Cliente> obtenerClientesPorCiudad(String ciudad) {
+        ArrayList<Cliente> resultado = new ArrayList<>();
+
+        for (Cliente cliente : listaClientes) {
+            if (cliente.getCiudadResidencia().equalsIgnoreCase(ciudad)) {
+                resultado.add(cliente);
+            }
+        }
+
+        return resultado;
+    }
+
+
+}
+
