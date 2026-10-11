@@ -1,0 +1,47 @@
+package co.edu.uniquindio.poo.model;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Optional;
+
+
+public record Factura(String codigo, LocalDate fecha, float total,
+                      EstadoFactura estadoFactura, MetodoPago metodoPago, Cliente cliente,
+                      ArrayList<DetalleFactura> listaDetallesFactura, Tienda ownedByTienda)
+        {
+
+                public String registrarDetalleFactura(DetalleFactura detalle){
+                        Optional<DetalleFactura>dfEncontrado= buscarDetalle(detalle.getProducto());
+                        if (dfEncontrado.isEmpty()) {
+                                listaDetallesFactura.add(detalle);
+                                return "detalle factura agregado";
+                        } else return "no agregado";
+
+                        }
+                        public Optional<DetalleFactura>buscarDetalle(Producto producto){
+                        return listaDetallesFactura.stream().filter(detalleFactura -> detalleFactura.getProducto().equals(producto)).findFirst();
+                        }
+
+                        public float totalFactura(){
+                                float total=0;
+                        for (DetalleFactura d:listaDetallesFactura){
+                                total=total+ d.calcularSubTotal();
+
+                        }return total;
+                        }
+                public boolean tieneIphone16ProMax() {
+                        for (DetalleFactura detalle : listaDetallesFactura) {
+                                Producto producto = detalle.getProducto();
+
+                                if (producto.getNombre().equalsIgnoreCase("Iphone 16 pro max")) {
+                                        return true;
+                                }
+                        }
+
+                        return false;
+                }
+                public boolean tieneClienteJuan() {
+                        return cliente().getNombreCompleto()
+                                .equalsIgnoreCase("Juan");
+                }
+                }
